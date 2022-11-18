@@ -7,25 +7,22 @@ require("dotenv").config({ path: "./config/.env" });
 require("./config/db");
 const { checkUser, requireAuth } = require("./middleware/auth.middleware");
 const cors = require("cors");
-const path = require("path");
-const helmet = require("helmet");
 
 const app = express();
 
 const corsOptions = {
   origin: process.env.CLIENT_URL,
   credentials: true,
-  allowedHeaders: ["sessionId", "Content-Type", "multipart/form-data"],
+  allowedHeaders: ["sessionId", "Content-Type"],
   exposedHeaders: ["sessionId"],
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE, OPTIONS",
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   preflightContinue: false,
 };
 app.use(cors(corsOptions));
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(helmet.crossOriginResourcePolicy({ policy: "same-site" }));
 
 // jwt
 app.get("*", checkUser);
@@ -34,11 +31,8 @@ app.get("/jwtid", requireAuth, (req, res) => {
 });
 
 // routes
-
 app.use("/api/user", userRoutes);
 app.use("/api/post", postRoutes);
-
-app.use("/upload", express.static(path.join(__dirname, "file")));
 
 // server
 app.listen(process.env.PORT, () => {
